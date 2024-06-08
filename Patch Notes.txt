@@ -1,0 +1,9 @@
+Battleship Game by Sean Bradbury
+
+v1.0
+-changed green text to black for readability
+-changed size and spacing of menu for aesthetics
+-changed round swap boards button to rectangle for ease of programming
+-slightly increased the dimensions of the game 
+-added pixel art for game board
+-changed blue palette for friendly game grid
