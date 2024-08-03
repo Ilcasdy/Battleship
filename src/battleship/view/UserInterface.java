@@ -83,7 +83,7 @@ public class UserInterface extends JFrame {
 	 */
 	private JLabel hostIp;
 	/**
-	 * the status of the connection
+	 * the status of the connection 
 	 */
 	private JLabel status;
 	private static JTextArea chatWindow;
