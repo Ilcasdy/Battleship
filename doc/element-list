@@ -1,4 +1,5 @@
 battleship
 battleship.controller
 battleship.model
+battleship.network
 battleship.view

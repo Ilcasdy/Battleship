@@ -3,16 +3,18 @@ import battleship.controller.*;
 import battleship.view.UserInterface;
 /**
  * the main model class for the battleship game
+ * @since 20
  */
 public class Game {
 	
 	private UserInterface view;
-	@SuppressWarnings("unused")
 	private Controller controller;
 	private Player player1;
 	private Player player2;
 	private Player turn;
 	private Boolean placeShips;
+	private Boolean gameOver = false;
+	private Boolean multiplayer = false;
 	/**
 	 * default constructor that defaults a user vs ai game
 	 */
@@ -21,7 +23,7 @@ public class Game {
 		player1 = new Player("Player 1", false, this);
 		player2 = new Player("Player 2", true, this);
 		
-		turn = player1;
+		turn = player2;
 		placeShips = true;
 	}
 	/**
@@ -39,11 +41,30 @@ public class Game {
 		this.controller = controller;
 	}
 	/**
+	 * getter for multiplayer option
+	 * @return multiplayer
+	 */
+	public Boolean getMultiplayer() {
+		return multiplayer;
+	}
+	/**
+	 * setter for multiplayer gameplay
+	 * @param multiplayer - true if multiplayer game
+	 */
+	public void setMultiplayer(Boolean multiplayer) {
+		this.multiplayer = multiplayer;
+	}
+	/**
 	 * determines the phase of the game
 	 * @param tOrF true if in the place ships phase, false otherwise
 	 */
 	public void setPlaceShips(Boolean tOrF) {
+		
 		placeShips = tOrF;
+		if ( tOrF == true ) {
+			controller.sendReady();
+		}
+		
 	}
 	/**
 	 * gets which player's turn it is
@@ -51,6 +72,20 @@ public class Game {
 	 */
 	public Player getTurn() {
 		return turn;
+	}
+	/**
+	 * gets the game over variable
+	 * @return gameOver - true if the game is over and no more moves are allowed
+	 */
+	public Boolean getGameOver() {
+		return gameOver;
+	}
+	/**
+	 * set to true when the game is over
+	 * @param gameOver - true if the game is completed
+	 */
+	public void setGameOver(Boolean gameOver) {
+		this.gameOver = gameOver;
 	}
 	/**
 	 * gets player 1 - the user
@@ -142,9 +177,19 @@ public class Game {
 	 * resets the game
 	 */
 	public void restartGame() {
+		gameOver = false;
 		placeShips = true;
 		turn = player1;
+		player1.setAi(false);
 		player1.restartGame();
 		player2.restartGame();
+	}
+	/**
+	 * sets whose turn it is
+	 * @param player - the player whose turn it is
+	 */
+	public void setTurn(Player player) {
+		this.turn = player;
+		
 	}
 }

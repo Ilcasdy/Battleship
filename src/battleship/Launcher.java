@@ -6,10 +6,19 @@ import battleship.view.*;
 import battleship.model.*;
 /**
  * contains main method for Battleship
+ * Java 20
  * @author Sean Bradbury
+ * @since 20
  *
  */
 public class Launcher {
+	
+	/**
+	 * default constructor
+	 */
+	public Launcher() {
+		
+	}
 	/**
 	 * main method to run Battleship game
 	 * @param args - not used

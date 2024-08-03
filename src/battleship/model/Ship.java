@@ -6,7 +6,6 @@ import battleship.view.UserInterface;
  */
 public class Ship {
 	
-	
 	/**
 	 * 0 is battleship
 	 * 1 is carrier
@@ -106,6 +105,13 @@ public class Ship {
 		return orientation;
 	}
 	/**
+	 * sets the health of the ship, generally used for resetting the game
+	 * @param health - the number of healthy squares of the ship
+	 */
+	public void setHealth(int health) {
+		this.health = health;
+	}
+	/**
 	 * sets the view the ship is attached to
 	 * @param view - the view of the game
 	 */
@@ -115,7 +121,7 @@ public class Ship {
 	/**
 	 * sets the y location of the ship (x and y are flipped
 	 * due to using grid coordinates instead of rows/columns)
-	 * @param x
+	 * @param x - the x location of the ship
 	 * @return true if successful
 	 */
 	public Boolean setX(int x) {
@@ -132,7 +138,7 @@ public class Ship {
 	/**
 	 * sets the x location of the ship (x and y are flipped
 	 * due to using grid coordinates instead of rows/columns)
-	 * @param y
+	 * @param y - the y location of the ship
 	 * @return true if successful
 	 */
 	public Boolean setY(int y) {
@@ -186,6 +192,7 @@ public class Ship {
 		if ( health <= 0 ) {;
 			if ( sunk == false ) {
 				view.updateSunk(player, type);
+				
 			}
 			sunk = true;
 		}

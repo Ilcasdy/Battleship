@@ -1,4 +1,14 @@
 Battleship Game by Sean Bradbury
+Java version 20
+
+v1.2
+-added networking
+
+v1.1
+-added menu options
+-added splash screen
+-added end game screens
+-added Timer class
 
 v1.0
 -changed green text to black for readability

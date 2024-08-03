@@ -16,6 +16,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -35,166 +37,88 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 /**
  * View for the game
  * @author Sean Bradbury
  */
 public class UserInterface extends JFrame {
-	/**
-	 * The main model
-	 */
+	
 	private static Game game;
-	/**
-	 * the controller for the game
-	 */
 	private static Controller controller;
 	/**
-	 * the orientation of the ship for placement, defaulted to up
+	 * default orientation is up during placement
 	 */
 	private String orientation = "Up";
 	/**
-	 * The text area for chat messages
+	 * the pop up dialog for the client
 	 */
+	private JDialog network;
+	/**
+	 * the pop up dialog for host connection
+	 */
+	private JDialog host;
+	/**
+	 * the text in the port field
+	 */
+	private JTextField portText;
+	/**
+	 * the status text for the network
+	 */
+	private JLabel statusText;
+	/**
+	 * the ip address field for the client
+	 */
+	private JTextField ipText;
+	/**
+	 * the port text field
+	 */
+	private JTextField hostPortText;
+	/**
+	 * the status of the host connection
+	 */
+	private JLabel hostStatusText;
+	/**
+	 * the ip address of the host
+	 */
+	private JLabel hostIp;
+	/**
+	 * the status of the connection
+	 */
+	private JLabel status;
 	private static JTextArea chatWindow;
-	/**
-	 * the opening screen
-	 */
 	private static JDialog splash;
-	/**
-	 * jlabel which displays the turn and timers
-	 */
 	private static JLabel gameInfo;
-	/**
-	 * displays friendly ship stats
-	 */
 	private static JTextArea friendlyShips;
-	/**
-	 * displays enemy ship stats
-	 */
 	private static JTextArea enemyShips;
-	/**
-	 * displays moves made in the game
-	 */
 	private static JTextArea moves;
-	/**
-	 * english locale
-	 */
-	static Locale englishLocale = new Locale("en");
-	/**
-	 * spanish locale
-	 */
-	static Locale spanishLocale = new Locale("sp");
-	/**
-	 * resource bundle defaulted to english
-	 */
-	static ResourceBundle bundle = ResourceBundle.getBundle("messages", englishLocale);
-	/**
-	 * an array of jlabels for containing ship graphics
-	 */
-	public static JLabel[] pictures = new JLabel[5];
-	/**
-	 * the swap boards button
-	 */
+	private static Locale englishLocale = new Locale.Builder().setLanguage("en").build();
+	private static ResourceBundle bundle = ResourceBundle.getBundle("messages", englishLocale);
+	private static JLabel[] pictures = new JLabel[5];
 	private static JButton swapBoards;
-	/**
-	 * the menu system
-	 */
 	private static JMenuBar menuBar;
-	/**
-	 * the game time
-	 */
 	private static Timer gameTimer = new Timer();
-	/**
-	 * the time of the player's turn
-	 */
 	private static Timer playerTimer = new Timer();
-	/**
-	 * text field used for name input
-	 */
 	private static JTextField name;
-	/**
-	 * the splash screen
-	 */
 	private static JDialog start;
-	
 	private static final long serialVersionUID = 1L;
-	/**
-	 * tells what is the currently active grid
-	 */
-	public static boolean isEnemyGrid;
-	/**
-	 * dark green colour used for the background
-	 */
-	public static final Color darkGreen = Color.decode("#284F00");
-	/**
-	 * cream colour used for text panels
-	 */
-	public static final Color cream = Color.decode("#FFF2CC");
-	/**
-	 * red colour used for grid labels and swap boards button
-	 */
-	public static final Color brightRed = Color.decode("#FF3131");
-	/**
-	 * blue used for friendly grid
-	 */
-	public static final Color paleBlue = Color.decode("#5ABCD8");
-	/**
-	 * blue used for friendly grid
-	 */
-	public static final Color lightBlue = Color.decode("#1CA3EC");
-	/**
-	 * blue used for friendly grid
-	 */
-	public static final Color seaBlue = Color.decode("#2389DA");
-	/**
-	 * blue used for friendly grid
-	 */
-	public static final Color blue = Color.decode("#0F5E9C");
-	/**
-	 * Courier New font, normal size
-	 */
-	public static final Font menuFont = new Font("Courier New", Font.PLAIN, 18);
-	/**
-	 * Courier New font, small
-	 */
-	public static final Font timeFont = new Font("Courier New", Font.PLAIN, 14);
-	/**
-	 * Courier New font, large
-	 */
-	public static final Font courier = new Font("Courier New", Font.BOLD, 28);
-	/**
-	 * Courier New font for top left panel
-	 */
-	public static final Font playerTurn = new Font("Courier New", Font.PLAIN, 24);
-	/**
-	 * c is used to set attributes to gridbag layout components
-	 */
-	public static GridBagConstraints c = new GridBagConstraints();
-	/**
-	 * the frame of the ui
-	 */
-	public static Container pane;
-	/**
-	 * the main grid of the game
-	 */
-	public static JPanel gameGrid;
-	/**
-	 * array of the friendly grid panels, the 0 row and column are the labels 
-	 * and 1-10 are the game grid
-	 */
-	public static JPanel[][] friendlyGridArray = new JPanel[11][11];
-	/**
-	 * array of the enemy grid panels
-	 */
-	public static JPanel[][] enemyGridArray = new JPanel[11][11];
-	
-	
-	/**
-	 * label used with an image icon to create graphics
-	 */
-	
+	private static boolean isEnemyGrid;
+	private static final Color darkGreen = Color.decode("#284F00");
+	private static final Color cream = Color.decode("#FFF2CC");
+	private static final Color brightRed = Color.decode("#FF3131");
+	private static final Color paleBlue = Color.decode("#5ABCD8");
+	private static final Color lightBlue = Color.decode("#1CA3EC");
+	private static final Color seaBlue = Color.decode("#2389DA");
+	private static final Color blue = Color.decode("#0F5E9C");
+	private static final Font menuFont = new Font("Courier New", Font.PLAIN, 18);
+	private static final Font timeFont = new Font("Courier New", Font.PLAIN, 14);
+	private static final Font courier = new Font("Courier New", Font.BOLD, 28);
+	private static GridBagConstraints c = new GridBagConstraints();
+	private static Container pane;
+	private static JPanel gameGrid;
+	private static JPanel[][] friendlyGridArray = new JPanel[11][11];
+	private static JPanel[][] enemyGridArray = new JPanel[11][11];
+
 
 	/**
 	 * default constructor
@@ -285,7 +209,7 @@ public class UserInterface extends JFrame {
 		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(pane);
 		start = new JDialog(frame, "Battleship", true);
 		start.setLocation(300, 200);
-        start.setSize(300, 200);
+        start.setSize(296, 117);
         ImageIcon logoIcon = new ImageIcon("icons/battleshiplogo.png");
         JLabel pic = new JLabel(logoIcon);
         start.add(pic);
@@ -309,7 +233,7 @@ public class UserInterface extends JFrame {
 		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(pane);
 		splash = new JDialog(frame, "Battleship", true);
 		splash.setLocation(300, 200);
-        splash.setSize(500, 300);
+        splash.setSize(480, 300);
         JPanel splashPanel = new JPanel(new BorderLayout());
         
         JButton exitSplash = new JButton("Start Game!");
@@ -317,12 +241,19 @@ public class UserInterface extends JFrame {
 		exitSplash.addActionListener(controller);
 		
         JLabel title = new JLabel("Battleship");
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        title.setFont(menuFont);
         JPanel middle = new JPanel(new BorderLayout());
         JTextArea body = new JTextArea();
-        body.append("By Sean Bradbury\n");
-        body.append("Ship art by Lowder 2\n\n");
-        body.append("Thank you for playing my game!\n\n");
-        body.append("Enter your name below");
+        body.setEditable(false);
+        JPanel lspacer = new JPanel();
+        JPanel rspacer = new JPanel();
+        lspacer.setPreferredSize(new Dimension(40, 300));
+        rspacer.setPreferredSize(new Dimension(40, 300));
+        body.append("\t                   By Sean Bradbury\n");
+        body.append("\t                 Ship art by Lowder 2\n\n");
+        body.append("\t          Thank you for playing my game!\n\n\n\n\n\n\n\n");
+        body.append("\t                 Enter your name below");
         
         name = new JTextField();
         
@@ -330,6 +261,8 @@ public class UserInterface extends JFrame {
         splashPanel.add(exitSplash, BorderLayout.SOUTH);
         splashPanel.add(title, BorderLayout.NORTH);
         splashPanel.add(middle, BorderLayout.CENTER);
+        splashPanel.add(rspacer, BorderLayout.EAST);
+        splashPanel.add(lspacer, BorderLayout.WEST);
         middle.add(body, BorderLayout.CENTER);
         middle.add(name, BorderLayout.SOUTH);
         splash.setVisible(true);
@@ -345,7 +278,7 @@ public class UserInterface extends JFrame {
         JTextArea aboutText = new JTextArea();
         aboutText.setEditable(false);
         about.add(aboutText);
-        aboutText.append("Made by Sean Bradbury");
+        aboutText.append(bundle.getString("madeby") + " Sean Bradbury");
         about.setVisible(true);
 	}
 	/**
@@ -359,9 +292,9 @@ public class UserInterface extends JFrame {
         JTextArea helpText = new JTextArea();
         helpText.setEditable(false);
         help.add(helpText);
-        helpText.append("Left click to place ships\n");
-        helpText.append("Right click to rotate ships\n");
-        helpText.append("Left click on enemy board to attack\n");
+        helpText.append(bundle.getString("leftclicktoplaceships") + "\n");
+        helpText.append(bundle.getString("rightclicktorotate") + "\n");
+        helpText.append(bundle.getString("leftclickonenemyboardtoattack") + "\n");
         help.setVisible(true);
 	}
 
@@ -391,7 +324,6 @@ public class UserInterface extends JFrame {
 		pane.add(menuBar, c);
 		
 
-		UIManager.put("Menu.background", cream);
 		// Create the menu button
 		JMenu menuButton = new JMenu(bundle.getString("menu"));
 		menuButton.setFont(menuFont);
@@ -414,6 +346,11 @@ public class UserInterface extends JFrame {
 		restart.setActionCommand("Restart");
 		restart.addActionListener(controller);
 		menuButton.add(restart);
+		JMenuItem resign = new JMenuItem(bundle.getString("resign"));
+		resign.setFont(menuFont);
+		resign.setActionCommand("Resign");
+		resign.addActionListener(controller);
+		menuButton.add(resign);
 		JMenu networkMenu = new JMenu(bundle.getString("network"));
 		networkMenu.setFont(menuFont);
 		menuButton.add(networkMenu);
@@ -471,9 +408,6 @@ public class UserInterface extends JFrame {
 		quickGame.setActionCommand("Quick Game");
 		quickGame.addActionListener(controller);
 		debug.add(quickGame);
-
-
-
 	}
 
 	/**
@@ -549,10 +483,9 @@ public class UserInterface extends JFrame {
 		c.weighty = 1.0;
 		pane.add(leftPanel, c);
 
-		// this panel will show whose turn it is with the timer
+		// this label will show whose turn it is with the timer
 		gameInfo = new JLabel();
 		gameInfo.setHorizontalAlignment(SwingConstants.CENTER);
-		gameInfo.setPreferredSize(new Dimension(0, 110));
 		gameInfo.setBackground(cream);
 		gameInfo.setFont(timeFont);
 		gameInfo.setOpaque(true);
@@ -568,6 +501,7 @@ public class UserInterface extends JFrame {
 
 		// shows the health of friendly ships
 		friendlyShips = new JTextArea();
+		friendlyShips.setEditable(false);
 		friendlyShips.setBackground(cream);
 		c.fill = GridBagConstraints.BOTH;
 		c.insets = new Insets(5, 10, 10, 0);
@@ -581,6 +515,7 @@ public class UserInterface extends JFrame {
 
 		// shows the health of enemy ships
 		enemyShips = new JTextArea();
+		enemyShips.setEditable(false);
 		enemyShips.setBackground(cream);
 		c.fill = GridBagConstraints.BOTH;
 		c.insets = new Insets(5, 10, 20, 0);
@@ -620,6 +555,7 @@ public class UserInterface extends JFrame {
 		// creates the outer panel
 		JPanel rightPanel = new JPanel(new GridBagLayout());
 		rightPanel.setBackground(darkGreen);
+		rightPanel.setPreferredSize(new Dimension(240, 300));
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.WEST;
 		c.gridx = 13;
@@ -639,34 +575,37 @@ public class UserInterface extends JFrame {
 		moves.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(moves);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setMaximumSize(new Dimension(100, 150));
-		scrollPane.setPreferredSize(new Dimension(0, 75));
+		scrollPane.setPreferredSize(new Dimension(210, 150));
 		c.fill = GridBagConstraints.BOTH;
 		c.insets = new Insets(30, 15, 10, 15);
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		c.weightx = 0;
-		c.weighty = 0.9;
+		c.weightx = 1;
+		c.weighty = 1;
 		rightPanel.add(scrollPane, c);
-
-		// temporary text
-		moves.append(" Place your ships!\n Right click to rotate\n");
+		
+		openingText();
 
 		// displays chat history
 		chatWindow = new JTextArea();
 		chatWindow.setBackground(Color.decode("#FFF2CC"));
+		chatWindow.setWrapStyleWord(true);
 		chatWindow.setLineWrap(true);
+		chatWindow.setEditable(false);
+		JScrollPane chatScroll = new JScrollPane(chatWindow);
+		chatScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		chatWindow.setSize(new Dimension(210, 150));
 		c.fill = GridBagConstraints.BOTH;
 		c.insets = new Insets(5, 15, 5, 15);
 		c.gridx = 0;
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		c.weightx = 1.0;
-		c.weighty = 1.0;
-		rightPanel.add(chatWindow, c);
+		c.weightx = 1;
+		c.weighty = 1;
+		rightPanel.add(chatScroll, c);
 
 		// area to type and send messages
 		JTextField chatTypeArea = new JTextField("");
@@ -1140,6 +1079,8 @@ public class UserInterface extends JFrame {
 	 * when the user wins the game this method creates a JDialog with a message
 	 */
 	public void winGame() {
+		
+		game.setGameOver(true);
 		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(pane);
 		JDialog youWin = new JDialog(frame, "Congratulations!", true);
 		youWin.setLocationRelativeTo(frame);
@@ -1154,6 +1095,8 @@ public class UserInterface extends JFrame {
 	 * when the user loses the game this method creates a JDialog with a message
 	 */
 	public void loseGame() {
+		
+		game.setGameOver(true);
 		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(pane);
 		JDialog youLose = new JDialog(frame, "Sorry!", true);
 		youLose.setLocationRelativeTo(frame);
@@ -1168,6 +1111,14 @@ public class UserInterface extends JFrame {
 	 * sets the text of the friendly ship status
 	 */
 	public static void friendlyShipsText() {
+		
+		if ( game.getMultiplayer() ) {
+			for ( int i = 0; i < 5; i++ ) {
+				if ( game.getPlayer1().getShip(i).getHealth() == 0 ) {
+					controller.sendSunk(i);
+				}
+			}
+		}
 		friendlyShips.setText("");
 		friendlyShips.append(" " + bundle.getString("your") + " " + bundle.getString("ships") + ":\n");
 		friendlyShips.append(" " + bundle.getString("carrier") + " " + game.getPlayer1().getShip(1).getHealth() + "/5\n");
@@ -1281,9 +1232,15 @@ public class UserInterface extends JFrame {
 	/**
 	 * adds a message to the chat window
 	 * @param message - the message to add from the text field
+	 * @param remote - if the message is remote, use the name of the second player
 	 */
-	public void chat(String message) {
-		chatWindow.append(game.getPlayer1().getName() + ": " + message + "\n");
+	public void chat(String message, Boolean remote) {
+		if (remote) {
+			chatWindow.append(game.getPlayer2().getName() + ": " + message + "\n");
+		} else {
+			chatWindow.append(game.getPlayer1().getName() + ": " + message + "\n");
+		}
+		
 	}
 	/**
 	 * changes the language of the game
@@ -1334,6 +1291,278 @@ public class UserInterface extends JFrame {
 		String formatTime = String.format("%02d:%02d", minutes, seconds);
 		
 		return formatTime;
+	}
+	/**
+	 * displays the opening text to start the game
+	 */
+	public static void openingText() {
+		moves.append(bundle.getString("placeyourships") + "\n");
+		moves.append(bundle.getString("rightclicktorotate") + "\n");
+	}
+	/**
+	 * used for general messages 
+	 * @param message - the message to be sent
+	 */
+	public static void updateMoves(String message) {
+		moves.append(bundle.getString(message) + "\n");
+	}
+	/**
+	 * gets the jdialog for hosting
+	 * @return host jdialog
+	 */
+	public JDialog getHostDialog() {
+		return host;
+	}
+	/**
+	 * gets the jdialog for the client
+	 * @return client jdialog
+	 */
+	public JDialog getConnectDialog() {
+		return network;
+	}
+	/**
+	 * jdialog for host connection
+	 */
+	public void hostPopUp() {
+		
+		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(pane);
+		host = new JDialog(frame, "Connect", true);
+		host.setLocation(300, 200);
+        host.setSize(360, 160);
+        
+        JPanel panel = new JPanel(new GridBagLayout());
+        
+        hostIp = new JLabel("IP address:" + getHostIp());
+        c.insets = new Insets(10, 10, 0, 10);
+        c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(hostIp, c);
+		
+        JLabel port = new JLabel("Port (10000 - 65355) ");
+        c.insets = new Insets(10, 10, 0, 10);
+        c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(port, c);
+		
+        hostPortText = new JTextField();
+        c.gridx = 1;
+		c.gridy = 1;
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(hostPortText, c);
+		
+		status = new JLabel("Status: ");
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 4;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(status, c);
+		
+		hostStatusText = new JLabel();
+		c.gridx = 1;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(hostStatusText, c);
+		
+        JButton connect = new JButton("Host");
+        connect.setActionCommand("Start Host");
+        connect.addActionListener(controller);
+        c.gridx = 2;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(connect, c);
+		
+        JButton cancel = new JButton("Close");
+        cancel.setActionCommand("Close Host");
+        cancel.addActionListener(controller);
+        c.gridx = 3;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(cancel, c);
+        
+        host.add(panel);
+        
+        host.setVisible(true);
+		
+	}
+	/**
+	 * pop up dialog for client connection
+	 */
+	public void clientPopUp() {
+		
+		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(pane);
+		network = new JDialog(frame, "Connect", true);
+		network.setLocation(300, 200);
+        network.setSize(360, 160);
+        
+        JPanel panel = new JPanel(new GridBagLayout());
+        JLabel ip = new JLabel("IP Address ");
+        c.insets = new Insets(10, 10, 0, 10);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(ip, c);
+		
+        ipText = new JTextField(""); 
+        c.gridx = 1;
+		c.gridy = 0;
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(ipText, c);
+		
+        JLabel port = new JLabel("Port (10000-65535)");
+        c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(port, c);
+		
+        portText = new JTextField("");
+        c.gridx = 1;
+		c.gridy = 1;
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(portText, c);
+		
+		status = new JLabel("Status: ");
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 4;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(status, c);
+		
+		statusText = new JLabel();
+		c.gridx = 1;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(statusText, c);
+		
+        JButton connect = new JButton("Connect");
+        connect.setActionCommand("Start Connection");
+        connect.addActionListener(controller);
+        c.gridx = 2;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(connect, c);
+		
+        JButton cancel = new JButton("Close");
+        cancel.setActionCommand("Close Connect");
+        cancel.addActionListener(controller);
+        c.gridx = 3;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		panel.add(cancel, c);
+        
+        network.add(panel);
+        
+        network.setVisible(true);
+		
+	}
+	/**
+	 * gets the host port
+	 * @return port number
+	 */
+	public int getHostPort() {
+		int port = -1;
+		String text = hostPortText.getText();
+		if ( text.equals("") ) {
+			port = 10000;
+			return port;
+		}
+		try {
+			port = Integer.parseInt(text);
+		} catch (NumberFormatException e) {
+			updateNetworkStatus(bundle.getString("enteraport"));
+		} catch (NullPointerException e) {
+			updateNetworkStatus("enteraport");
+		}
+		
+		
+		return port;
+	}
+	/**
+	 * gets the client port
+	 * @return port number
+	 */
+	public int getClientPort() {
+		int port;
+		String text = portText.getText();
+		try {
+			port = Integer.parseInt(text);
+		} catch (Exception e ) {
+			port = 10000;
+		}
+		
+		return port;
+	}
+	/**
+	 * gets the client's ip address
+	 * @return the ip address of the client
+	 */
+	public String getClientIP() {
+		return ipText.getText();
+	}
+	/**
+	 * gets the host ip address
+	 * @return the ip address of the host
+	 */
+	public String getHostIp() {
+		InetAddress localHost = null;
+		try {
+			localHost = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			updateMoves("cannot find ip address");
+		}
+		String address = localHost.getHostAddress();
+		return address;
+	}
+	/**
+	 * updates the network status in the pop up dialog
+	 * @param message - the update message
+	 */
+	public void updateNetworkStatus(String message) {
+		status.setText("Status: " + message);
 	}
 
 	/**

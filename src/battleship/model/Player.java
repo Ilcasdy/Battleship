@@ -44,10 +44,17 @@ public class Player {
 	}
 	/**
 	 * sets the name of the player
-	 * @param name
+	 * @param name - the player's name
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+	/**
+	 * sets the number of ships placed, generally used to reset game
+	 * @param shipsPlaced - the number of ships placed
+	 */
+	public void setShipsPlaced(int shipsPlaced) {
+		this.shipsPlaced = shipsPlaced;
 	}
 	/**
 	 * gets how many ships have been placed
@@ -73,7 +80,7 @@ public class Player {
 	}
 	/**
 	 * sets if the player is ai or not
-	 * @param true if ai, false if not
+	 * @param ai - true if ai, false if not
 	 */
 	public void setAi(Boolean ai) {
 		this.isAi = ai;
@@ -166,8 +173,17 @@ public class Player {
 			ships[shipsPlaced].setView(game.getView());
 			shipsPlaced++;
 		}
-		if ( shipsPlaced == 5 ) {
+		if ( game.getMultiplayer() == false && shipsPlaced >= 5 ) {
 			game.setPlaceShips(false);
+			
+			Random random = new Random();
+			int turn = random.nextInt(2);
+			if ( turn ==  0 ) {
+				game.setTurn(this);
+			} else {
+				game.setTurn(game.getPlayer2());
+				game.getPlayer2().aiAttack();
+			}
 		}
 		
 		return true;
